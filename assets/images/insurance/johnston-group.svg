@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90" role="img" aria-labelledby="title">
+  <title id="title">Johnston Group</title>
+  <path d="M25 63c20-34 47-34 67 0" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/>
+  <text x="104" y="44" fill="#333" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="800">Johnston</text>
+  <text x="104" y="67" fill="#333" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Group</text>
+</svg>

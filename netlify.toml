@@ -1,0 +1,60 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/assets/css/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/js/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[redirects]]
+  from = "/api/jane-openings"
+  to = "/.netlify/functions/jane-openings"
+  status = 200
+
+[[redirects]]
+  from = "/api/wordpress-posts"
+  to = "/.netlify/functions/wordpress-posts"
+  status = 200
+
+[[redirects]]
+  from = "/about-1/"
+  to = "/about/"
+  status = 301
+
+[[redirects]]
+  from = "/mental-health-resources//why-do-i-feel-like-a-different-person-around-different-people"
+  to = "/mental-health-resources/why-do-i-feel-like-a-different-person-around-different-people/"
+  status = 301
+
+[[redirects]]
+  from = "/mental-health-resources/*"
+  to = "/article.html"
+  status = 200
+  force = true

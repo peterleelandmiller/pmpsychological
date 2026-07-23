@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90" role="img" aria-labelledby="title">
+  <title id="title">Manulife</title>
+  <rect x="20" y="24" width="50" height="42" fill="#126b45"/>
+  <path d="M34 58V34M45 58V30M56 58V34" stroke="#fff" stroke-width="7"/>
+  <text x="90" y="58" fill="#126b45" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700">Manulife</text>
+</svg>
