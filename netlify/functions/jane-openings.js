@@ -3,7 +3,7 @@ const JANE_BOOKING_URL = `${JANE_BASE_URL}/locations/peter-miller/book`;
 const LOCATION_ID = 1;
 const STAFF_MEMBER_ID = 1;
 const NUM_DAYS = 7;
-const CACHE_KEY = "availability";
+const CACHE_KEY = "availability-v2";
 const CACHE_FRESH_SECONDS = 300;
 const CACHE_STALE_SECONDS = 86400;
 const CDN_CACHE_SECONDS = 300;
@@ -186,7 +186,7 @@ async function fetchTreatmentOpenings(option) {
         endAt: opening.end_at,
         duration: opening.duration
       }))
-      .slice(0, 12)
+      .sort((a, b) => new Date(a.startAt) - new Date(b.startAt))
   };
 }
 
