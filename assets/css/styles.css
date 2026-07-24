@@ -742,6 +742,19 @@ h3 {
   color: rgba(255, 255, 255, 0.86);
 }
 
+.service-copy .eyebrow {
+  margin-bottom: 0;
+}
+
+.service-copy h2 + .lead {
+  margin-top: 0.05rem;
+}
+
+.service-copy .lead {
+  margin-bottom: 0;
+  line-height: 1.45;
+}
+
 .service-copy .eyebrow::before {
   background: var(--gold);
 }
@@ -749,6 +762,12 @@ h3 {
 .service-copy .check-list {
   columns: 2;
   column-gap: 1.4rem;
+  margin-top: 0.05rem;
+}
+
+.service-copy .check-list li {
+  margin: 0;
+  line-height: 1.45;
 }
 
 .service-copy .check-list li::before {
@@ -2403,8 +2422,30 @@ h3 {
     width: min(760px, 100%);
   }
 
+  .service-copy .eyebrow {
+    margin-bottom: 0.65rem;
+  }
+
+  .service-copy h2 + .lead {
+    margin-top: 0.9rem;
+  }
+
+  .service-copy .lead {
+    margin-bottom: 0.8rem;
+    line-height: 1.65;
+  }
+
   .service-copy .stat-strip {
     margin-top: 2rem;
+  }
+
+  .service-copy .check-list {
+    margin-top: 1rem;
+  }
+
+  .service-copy .check-list li {
+    margin: 0.45rem 0;
+    line-height: 1.6;
   }
 
   .visual-card,
