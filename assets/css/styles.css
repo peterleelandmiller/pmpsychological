@@ -37,6 +37,10 @@ body.nav-open {
   overflow-x: clip;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 a {
   color: inherit;
 }
@@ -81,6 +85,7 @@ img {
 .preloader.is-hidden {
   opacity: 0;
   visibility: hidden;
+  pointer-events: none;
 }
 
 .preloader-card {
@@ -336,7 +341,7 @@ img {
 .hero {
   position: relative;
   overflow: hidden;
-  padding: clamp(1.35rem, 3vw, 2.4rem) 0 clamp(1.4rem, 3vw, 2.4rem);
+  padding: clamp(1rem, 2.2vw, 1.65rem) 0 clamp(1.2rem, 2.8vw, 2rem);
   background: linear-gradient(135deg, rgba(245, 241, 234, 0.96), rgba(255, 253, 250, 0.92));
 }
 
@@ -349,7 +354,13 @@ img {
 }
 
 .hero .hero-grid {
-  align-items: start;
+  align-items: stretch;
+  min-height: clamp(520px, 72dvh, 680px);
+}
+
+.hero .hero-grid > .reveal:first-child {
+  display: grid;
+  align-content: center;
 }
 
 .eyebrow {
@@ -382,7 +393,7 @@ h3 {
 h1 {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2.25rem, 4.8vw, 4.15rem);
-  max-width: 12ch;
+  max-width: 13ch;
 }
 
 h2 {
@@ -398,6 +409,50 @@ h3 {
   color: var(--muted);
   font-size: clamp(1rem, 1.45vw, 1.16rem);
   max-width: 660px;
+}
+
+.hero .lead {
+  margin-bottom: 0;
+}
+
+.hero-service-summary {
+  max-width: 680px;
+  margin-top: 0.35rem;
+}
+
+.hero-service-summary p {
+  color: #3f4f4b;
+  margin: 0 0 0.75rem;
+}
+
+.hero-points {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-points li {
+  display: grid;
+  grid-template-columns: minmax(112px, 0.34fr) minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  border-top: 1px solid var(--line);
+  padding-top: 0.7rem;
+}
+
+.hero-points strong {
+  color: var(--blue);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-points span {
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .actions {
@@ -454,7 +509,9 @@ h3 {
 }
 
 [data-loading-button][disabled],
-[data-loading-button].is-loading {
+[data-loading-button].is-loading,
+.btn[disabled],
+.btn.is-loading {
   pointer-events: none;
   opacity: 0.78;
 }
@@ -470,6 +527,10 @@ h3 {
 }
 
 [data-loading-button].is-loading .btn-spinner {
+  display: inline-block;
+}
+
+.btn.is-loading .btn-spinner {
   display: inline-block;
 }
 
@@ -490,7 +551,7 @@ h3 {
 
 .visual-card {
   position: relative;
-  min-height: 380px;
+  min-height: 420px;
   border-radius: 32px;
   overflow: hidden;
   box-shadow: var(--shadow);
@@ -501,7 +562,7 @@ h3 {
 .visual-card img {
   width: 100%;
   height: 100%;
-  min-height: 380px;
+  min-height: 420px;
   object-fit: cover;
   transition: transform 0.7s ease;
 }
@@ -568,9 +629,9 @@ h3 {
 }
 
 .hero .about-visual {
-  justify-self: center;
-  width: min(360px, 100%);
-  height: clamp(430px, calc(100vh - 350px), 580px);
+  justify-self: stretch;
+  width: 100%;
+  height: clamp(540px, 74dvh, 700px);
   min-height: 0;
   background: #d9e1dc;
 }
@@ -631,6 +692,283 @@ h3 {
   display: block;
   color: var(--blue);
   font-size: 1.6rem;
+}
+
+.about-story > .reveal:first-child {
+  align-self: stretch;
+  display: grid;
+  align-content: center;
+}
+
+.service-background {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(560px, 74vh, 760px);
+  display: grid;
+  align-items: center;
+  background-image: linear-gradient(90deg, rgba(23, 35, 35, 0.86), rgba(23, 35, 35, 0.58) 46%, rgba(23, 35, 35, 0.2)), var(--service-bg);
+  background-position: center;
+  background-size: cover;
+  color: white;
+}
+
+.service-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(24, 50, 74, 0.16), rgba(23, 35, 35, 0.24));
+}
+
+.service-background .service-first {
+  display: block;
+}
+
+.service-copy {
+  width: min(1040px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 720px) minmax(220px, 280px);
+  gap: clamp(1.25rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.service-copy > :not(.stat-strip) {
+  grid-column: 1;
+}
+
+.service-copy .eyebrow,
+.service-copy .lead,
+.service-copy p {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.service-copy .eyebrow::before {
+  background: var(--gold);
+}
+
+.service-copy .check-list {
+  columns: 2;
+  column-gap: 1.4rem;
+}
+
+.service-copy .check-list li::before {
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--gold);
+}
+
+.service-copy .stat {
+  background: rgba(255, 253, 250, 0.92);
+  color: var(--ink);
+  backdrop-filter: blur(14px);
+}
+
+.service-copy .stat-strip {
+  grid-column: 2;
+  grid-row: 1 / span 5;
+  align-self: center;
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}
+
+.service-background .therapy-term {
+  color: white;
+}
+
+.service-background .therapy-term:hover,
+.service-background .therapy-term:focus-visible {
+  color: #f4dfad;
+}
+
+.service-background .stat .therapy-term,
+.service-background .stat .therapy-term:hover,
+.service-background .stat .therapy-term:focus-visible {
+  color: var(--sage-dark);
+}
+
+.service-background .check-list li:hover {
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.consult-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(620px, 78vh, 820px);
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  background-image: linear-gradient(90deg, rgba(23, 35, 35, 0.9), rgba(23, 35, 35, 0.68) 48%, rgba(23, 35, 35, 0.18)), var(--consult-bg);
+  background-position: center;
+  background-size: cover;
+  color: white;
+  padding: clamp(2.25rem, 5vw, 4rem) 0;
+}
+
+.consult-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(24, 50, 74, 0.16), rgba(23, 35, 35, 0.32));
+}
+
+.consult-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(400px, 0.56fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.consult-hero-copy {
+  max-width: 760px;
+}
+
+.consult-hero .eyebrow,
+.consult-hero .lead,
+.consult-hero-copy p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.consult-hero h1 {
+  max-width: 14ch;
+}
+
+.consult-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.consult-meta span {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  padding: 0.45rem 0.75rem;
+  backdrop-filter: blur(12px);
+}
+
+.consult-card {
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  border-radius: 24px;
+  background: rgba(255, 253, 250, 0.93);
+  color: var(--ink);
+  box-shadow: 0 30px 88px rgba(24, 50, 74, 0.24);
+  padding: clamp(1.4rem, 3vw, 2rem);
+  backdrop-filter: blur(14px);
+}
+
+.consult-card h2 {
+  font-size: clamp(1.65rem, 2.6vw, 2.35rem);
+}
+
+.consult-card p {
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.consult-card .btn {
+  width: 100%;
+}
+
+.consult-signs .quote-band {
+  min-height: 100%;
+  display: grid;
+  align-content: center;
+}
+
+.consult-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.consult-step {
+  min-height: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 253, 250, 0.86);
+  box-shadow: 0 14px 45px rgba(24, 50, 74, 0.08);
+  padding: clamp(1.2rem, 3vw, 1.55rem);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.consult-step:hover {
+  border-color: rgba(111, 141, 132, 0.25);
+  box-shadow: 0 22px 58px rgba(24, 50, 74, 0.13);
+  transform: translateY(-4px);
+}
+
+.consult-step span {
+  display: block;
+  color: var(--sage-dark);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.85rem;
+}
+
+.consult-step p {
+  color: var(--muted);
+}
+
+.consult-profile {
+  align-items: stretch;
+}
+
+.consult-profile .about-visual {
+  min-height: 100%;
+}
+
+.consult-profile .about-visual img {
+  min-height: 100%;
+  object-position: center top;
+}
+
+.consult-methods {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+}
+
+.consult-methods li {
+  margin: 0;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.consult-methods .therapy-term-wrap {
+  display: inline;
+  white-space: normal;
+}
+
+.quote-inline {
+  margin-top: 1.4rem;
+  border-left: 4px solid var(--gold);
+  color: var(--blue);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.08rem, 1.5vw, 1.24rem);
+  font-weight: 700;
+  padding-left: 1rem;
+}
+
+.quote-inline p {
+  margin: 0.35rem 0;
+}
+
+.consult-focus-grid .card {
+  min-height: 100%;
+}
+
+.consult-final-cta .booking-panel {
+  display: grid;
+  align-content: center;
+  gap: 0.7rem;
 }
 
 .section-intro {
@@ -721,6 +1059,10 @@ h3 {
   max-width: 820px;
 }
 
+.booking-intro {
+  max-width: 860px;
+}
+
 .booking-note {
   color: var(--muted);
   margin-top: 1.2rem;
@@ -733,6 +1075,10 @@ h3 {
   box-shadow: var(--shadow);
   padding: clamp(1rem, 3vw, 1.5rem);
   min-width: 0;
+}
+
+.booking-panel > p {
+  color: var(--muted);
 }
 
 .booking-toolbar {
@@ -1355,10 +1701,142 @@ h3 {
 }
 
 .resource-tools {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
   margin: 2rem 0;
+}
+
+.resource-search-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.resource-tool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.icon-button,
+.modal-close {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  color: var(--blue);
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.icon-button {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+}
+
+.icon-button:hover,
+.modal-close:hover {
+  background: rgba(111, 141, 132, 0.12);
+  border-color: rgba(111, 141, 132, 0.32);
+  box-shadow: 0 14px 32px rgba(24, 50, 74, 0.1);
+  transform: translateY(-2px);
+}
+
+.refresh-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.refresh-button-spinner {
+  display: none;
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+
+.icon-button.is-loading .refresh-icon {
+  display: none;
+}
+
+.icon-button.is-loading .refresh-button-spinner {
+  display: block;
+  animation: spin 0.7s linear infinite;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(23, 35, 35, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.refresh-modal {
+  position: relative;
+  width: min(520px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  border-radius: 24px;
+  background: var(--paper);
+  box-shadow: 0 32px 90px rgba(24, 50, 74, 0.26);
+  padding: clamp(1.1rem, 4vw, 1.5rem);
+}
+
+.modal-close {
+  position: absolute;
+  right: 0.85rem;
+  top: 0.85rem;
+  width: 40px;
+  height: 40px;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.article-refresh-panel {
+  display: grid;
+  gap: 1rem;
+  padding-right: 2.8rem;
+}
+
+.article-refresh-panel p {
+  color: var(--muted);
+  margin: 0.2rem 0 0;
+}
+
+.article-refresh-row {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.article-refresh-row .btn {
+  width: 100%;
+}
+
+.article-refresh-status {
+  min-height: 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.article-refresh-status[data-status="loading"] {
+  color: var(--blue);
+}
+
+.article-refresh-status[data-status="success"] {
+  color: var(--sage-dark);
+}
+
+.article-refresh-status[data-status="error"] {
+  color: #8f3c2f;
 }
 
 .search-input {
@@ -1906,8 +2384,27 @@ h3 {
   .endorsement-grid,
   .fees-grid,
   .approach-cards,
-  .billing-grid {
+  .billing-grid,
+  .consult-hero-grid,
+  .consult-steps {
     grid-template-columns: 1fr;
+  }
+
+  .resource-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .service-copy .check-list {
+    columns: 1;
+  }
+
+  .service-copy {
+    display: block;
+    width: min(760px, 100%);
+  }
+
+  .service-copy .stat-strip {
+    margin-top: 2rem;
   }
 
   .visual-card,
@@ -1928,7 +2425,24 @@ h3 {
 
   .hero .about-visual {
     width: min(330px, 100%);
-    height: clamp(340px, 50vh, 420px);
+    height: clamp(460px, 62vh, 560px);
+  }
+
+  .service-background {
+    min-height: 0;
+    background-image: linear-gradient(180deg, rgba(23, 35, 35, 0.88), rgba(23, 35, 35, 0.72)), var(--service-bg);
+    background-position: center;
+  }
+
+  .consult-hero {
+    min-height: 0;
+    background-image: linear-gradient(180deg, rgba(23, 35, 35, 0.88), rgba(23, 35, 35, 0.72)), var(--consult-bg);
+    padding: clamp(1.75rem, 6vw, 2.5rem) 0;
+  }
+
+  .consult-card {
+    width: min(620px, 100%);
+    padding: clamp(1rem, 4vw, 1.35rem);
   }
 
   .hero-visual .verification-badge {
@@ -1949,6 +2463,11 @@ h3 {
 
   .stat-strip {
     grid-template-columns: 1fr;
+  }
+
+  .hero-points li {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
   }
 
   .booking-toolbar {
@@ -2055,7 +2574,7 @@ h3 {
 
   .hero .about-visual {
     width: min(300px, 100%);
-    height: clamp(280px, 56vh, 340px);
+    height: clamp(430px, 62vh, 500px);
     margin-inline: auto;
     border-radius: 24px;
   }
@@ -2091,6 +2610,10 @@ h3 {
 
   .about-visual > img {
     min-height: 320px;
+  }
+
+  .consult-methods {
+    grid-template-columns: 1fr;
   }
 
   .footer-badge {

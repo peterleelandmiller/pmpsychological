@@ -8,11 +8,19 @@ const SELECTORS = {
   resourceGrid: "[data-resource-grid]",
   search: "[data-resource-search]",
   tags: "[data-resource-tags]",
+  articleRefreshOpen: "[data-article-refresh-open]",
+  articleRefreshClose: "[data-article-refresh-close]",
+  articleRefreshModal: "[data-article-refresh-modal]",
+  articleRefreshForm: "[data-article-refresh-form]",
+  articleRefreshPassword: "[data-article-refresh-password]",
+  articleRefreshButton: "[data-article-refresh-button]",
+  articleRefreshStatus: "[data-article-refresh-status]",
   cmsArticle: "[data-cms-article]",
   bookingWidget: "[data-booking-widget]"
 };
 
 const WORDPRESS_POSTS_URL = "/api/wordpress-posts";
+const ARTICLE_REFRESH_URL = "/api/refresh-articles";
 const JANE_OPENINGS_URL = "/api/jane-openings";
 
 const fallbackArticles = [
@@ -357,6 +365,22 @@ async function loadWordPressArticles() {
   return fallbackArticles;
 }
 
+async function refreshWordPressArticles(password) {
+  const response = await fetch(ARTICLE_REFRESH_URL, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ password })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || "Article refresh failed");
+  }
+  return Array.isArray(data.items) ? data.items : fallbackArticles;
+}
+
 function escapeHtml(value = "") {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -385,34 +409,114 @@ function articleCard(article) {
   `;
 }
 
+function initArticleRefreshModalShell() {
+  const open = document.querySelector(SELECTORS.articleRefreshOpen);
+  const close = document.querySelector(SELECTORS.articleRefreshClose);
+  const modal = document.querySelector(SELECTORS.articleRefreshModal);
+  const password = document.querySelector(SELECTORS.articleRefreshPassword);
+  const refreshButton = document.querySelector(SELECTORS.articleRefreshButton);
+  const status = document.querySelector(SELECTORS.articleRefreshStatus);
+  if (!open || !modal || modal.dataset.modalBound === "true") return;
+  modal.dataset.modalBound = "true";
+
+  const openModal = () => {
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+    if (status) {
+      status.textContent = "";
+      status.dataset.status = "";
+    }
+    requestAnimationFrame(() => password?.focus());
+  };
+
+  const closeModal = () => {
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+    refreshButton?.classList.remove("is-loading");
+    refreshButton?.removeAttribute("aria-busy");
+    if (refreshButton) refreshButton.disabled = false;
+    open.focus();
+  };
+
+  let openingModal = false;
+  const startOpenModal = async () => {
+    if (!modal.hidden || open.classList.contains("is-loading")) return;
+    openingModal = true;
+    open.classList.add("is-loading");
+    open.setAttribute("aria-busy", "true");
+    open.disabled = true;
+    await minimumDelay(1000);
+    open.classList.remove("is-loading");
+    open.removeAttribute("aria-busy");
+    open.disabled = false;
+    openingModal = false;
+    openModal();
+  };
+
+  open.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    startOpenModal();
+  });
+  open.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (!openingModal) startOpenModal();
+  });
+  close?.addEventListener("click", closeModal);
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) closeModal();
+  });
+}
+
 async function initResources() {
   const grid = document.querySelector(SELECTORS.resourceGrid);
   const search = document.querySelector(SELECTORS.search);
   const tagsWrap = document.querySelector(SELECTORS.tags);
+  const refreshForm = document.querySelector(SELECTORS.articleRefreshForm);
+  const refreshOpen = document.querySelector(SELECTORS.articleRefreshOpen);
+  const refreshClose = document.querySelector(SELECTORS.articleRefreshClose);
+  const refreshModal = document.querySelector(SELECTORS.articleRefreshModal);
+  const refreshPassword = document.querySelector(SELECTORS.articleRefreshPassword);
+  const refreshButton = document.querySelector(SELECTORS.articleRefreshButton);
+  const refreshStatus = document.querySelector(SELECTORS.articleRefreshStatus);
   if (!grid || !search || !tagsWrap) return;
 
   const filterButton = (label, type, active = false) => `<button class="tag${active ? " active" : ""}" type="button" data-filter-type="${type}" data-filter-value="${escapeAttribute(label)}">${escapeHtml(label)}</button>`;
   let activeTag = "All";
   let activeCategory = "All";
-  let articles = await loadWordPressArticles();
-  articles = articles.map((article) => ({
-    ...article,
-    categories: Array.isArray(article.categories) ? article.categories : [],
-    postTags: Array.isArray(article.postTags) ? article.postTags : article.tags || []
-  }));
-  const allCategories = ["All", ...new Set(articles.flatMap((article) => article.categories))];
-  const allTags = ["All", ...new Set(articles.flatMap((article) => article.postTags))];
 
-  tagsWrap.innerHTML = `
-    <div class="filter-group">
-      <span class="filter-label">Categories</span>
-      <div class="filter-options">${allCategories.map((category) => filterButton(category, "category", category === "All")).join("")}</div>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Tags</span>
-      <div class="filter-options">${allTags.map((tag) => filterButton(tag, "tag", tag === "All")).join("")}</div>
-    </div>
-  `;
+  let articles = await loadWordPressArticles();
+
+  function normalizeArticles(nextArticles) {
+    return nextArticles.map((article) => ({
+      ...article,
+      tags: Array.isArray(article.tags) ? article.tags : [],
+      categories: Array.isArray(article.categories) ? article.categories : [],
+      postTags: Array.isArray(article.postTags) ? article.postTags : article.tags || []
+    }));
+  }
+
+  function renderFilters() {
+    const allCategories = ["All", ...new Set(articles.flatMap((article) => article.categories))];
+    const allTags = ["All", ...new Set(articles.flatMap((article) => article.postTags))];
+    if (!allCategories.includes(activeCategory)) activeCategory = "All";
+    if (!allTags.includes(activeTag)) activeTag = "All";
+
+    tagsWrap.innerHTML = `
+      <div class="filter-group">
+        <span class="filter-label">Categories</span>
+        <div class="filter-options">${allCategories.map((category) => filterButton(category, "category", category === activeCategory)).join("")}</div>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Tags</span>
+        <div class="filter-options">${allTags.map((tag) => filterButton(tag, "tag", tag === activeTag)).join("")}</div>
+      </div>
+    `;
+  }
+
+  articles = normalizeArticles(articles);
 
   function render() {
     const query = search.value.trim().toLowerCase();
@@ -428,6 +532,30 @@ async function initResources() {
     initReveals();
   }
 
+  function setRefreshStatus(message = "", type = "") {
+    if (!refreshStatus) return;
+    refreshStatus.textContent = message;
+    refreshStatus.dataset.status = type;
+  }
+
+  function openRefreshModal() {
+    if (!refreshModal) return;
+    refreshModal.hidden = false;
+    document.body.classList.add("modal-open");
+    setRefreshStatus("", "");
+    requestAnimationFrame(() => refreshPassword?.focus());
+  }
+
+  function closeRefreshModal() {
+    if (!refreshModal) return;
+    refreshModal.hidden = true;
+    document.body.classList.remove("modal-open");
+    refreshButton?.classList.remove("is-loading");
+    refreshButton?.removeAttribute("aria-busy");
+    if (refreshButton) refreshButton.disabled = false;
+    refreshOpen?.focus();
+  }
+
   tagsWrap.addEventListener("click", (event) => {
     const button = event.target.closest("[data-filter-value]");
     if (!button) return;
@@ -439,6 +567,42 @@ async function initResources() {
   });
 
   search.addEventListener("input", render);
+  refreshForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const password = refreshPassword?.value || "";
+    if (!password) {
+      setRefreshStatus("Enter the admin password to refresh articles.", "error");
+      refreshPassword?.focus();
+      return;
+    }
+
+    refreshButton?.classList.add("is-loading");
+    refreshButton?.setAttribute("aria-busy", "true");
+    if (refreshButton) refreshButton.disabled = true;
+    setRefreshStatus("Refreshing articles from WordPress...", "loading");
+    const spinnerDelay = minimumDelay(1000);
+
+    try {
+      const refreshedArticles = await refreshWordPressArticles(password);
+      await spinnerDelay;
+      articles = normalizeArticles(refreshedArticles);
+      if (refreshPassword) refreshPassword.value = "";
+      activeCategory = "All";
+      activeTag = "All";
+      renderFilters();
+      render();
+      setRefreshStatus(`Articles refreshed successfully. ${articles.length} posts loaded.`, "success");
+    } catch (error) {
+      await spinnerDelay;
+      setRefreshStatus("Refresh failed. Check the password and try again.", "error");
+    } finally {
+      refreshButton?.classList.remove("is-loading");
+      refreshButton?.removeAttribute("aria-busy");
+      if (refreshButton) refreshButton.disabled = false;
+    }
+  });
+
+  renderFilters();
   render();
 }
 
@@ -674,6 +838,7 @@ initLoadingButtons();
 initReveals();
 initFaqs();
 initTherapyTermPopovers();
+initArticleRefreshModalShell();
 initResources();
 initCmsArticle();
 initBookingWidget();

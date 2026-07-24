@@ -44,6 +44,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/refresh-articles"
+  to = "/.netlify/functions/refresh-articles"
+  status = 200
+
+[[redirects]]
   from = "/about-1/"
   to = "/about/"
   status = 301

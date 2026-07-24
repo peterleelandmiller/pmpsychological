@@ -18,6 +18,14 @@ Netlify rewrites that URL to:
 
 `/.netlify/functions/wordpress-posts`
 
+Admins can also trigger a manual cache-bypassing refresh from the resources page. The frontend calls:
+
+`/api/refresh-articles`
+
+Netlify rewrites that URL to:
+
+`/.netlify/functions/refresh-articles`
+
 ## 2. Required WordPress settings
 
 Keep these WordPress settings in place:
@@ -40,6 +48,7 @@ Set these in Netlify, not in committed source:
 - `WORDPRESS_CATEGORY_ID`: optional. Restricts posts to a WordPress category ID.
 - `WORDPRESS_CATEGORY_SLUG`: optional. Restricts posts to a WordPress category slug when `WORDPRESS_CATEGORY_ID` is not set.
 - `WORDPRESS_POSTS_PER_PAGE`: optional. Defaults to `100`.
+- `ARTICLE_REFRESH_PASSWORD`: required for manual article refresh. Store this only in Netlify environment variables; do not commit it to the repository.
 
 Use different values per Netlify deploy context if production and development use different WordPress sites.
 
@@ -50,14 +59,22 @@ No code changes are required for normal article publishing once the environment 
 The developer-maintained pieces are:
 
 - `netlify/functions/wordpress-posts.js`
+  - Exposes the public article feed route.
+- `netlify/functions/article-service.js`
   - Reads the WordPress URL from Netlify environment variables.
   - Fetches published posts from the WordPress REST API.
   - Normalizes WordPress posts into the article shape used by the frontend.
+  - Manages in-memory and Netlify Blobs article caching.
+- `netlify/functions/refresh-articles.js`
+  - Validates `ARTICLE_REFRESH_PASSWORD` server-side.
+  - Bypasses existing article caches, fetches fresh WordPress posts, and rebuilds the persistent cache.
 - `assets/js/main.js`
   - Loads articles from `/api/wordpress-posts`.
   - Renders the resources listing and article detail shell.
+  - Submits the admin refresh form to `/api/refresh-articles` and updates the article list without a full page reload.
 - `netlify.toml`
   - Rewrites `/api/wordpress-posts` to the Netlify Function.
+  - Rewrites `/api/refresh-articles` to the refresh Netlify Function.
   - Rewrites `/mental-health-resources/*` to `article.html` so new article URLs work without generated HTML files.
 
 ## 5. Soro workflow
@@ -73,6 +90,8 @@ The developer-maintained pieces are:
 
 Published WordPress changes may take a few minutes to appear because the Netlify Function uses CDN caching.
 
+To force an immediate sync, enter the admin refresh password on `/mental-health-resources/` and use **Refresh Articles**.
+
 ## 6. Caching and rate-limit protection
 
 The WordPress article function uses three cache layers:
@@ -82,6 +101,8 @@ The WordPress article function uses three cache layers:
 - Netlify Blobs stores the last successful article feed for up to 24 hours.
 
 If WordPress is temporarily unavailable or rate-limited, the function serves the last successful cached feed when possible. The `/api/wordpress-posts` response includes a `cache` object and `X-Article-Source` header so you can see whether content came from WordPress live, fresh cache, or stale cache.
+
+Manual refresh is intentionally different from normal loading: the refresh function uses no-store response headers, clears transient cache state, bypasses the existing article cache, fetches from WordPress, and writes the fresh payload back to Netlify Blobs for subsequent normal requests.
 
 ## 7. Limitations and caveats
 
