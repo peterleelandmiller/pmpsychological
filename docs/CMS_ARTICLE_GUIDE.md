@@ -48,7 +48,7 @@ Set these in Netlify, not in committed source:
 - `WORDPRESS_CATEGORY_ID`: optional. Restricts posts to a WordPress category ID.
 - `WORDPRESS_CATEGORY_SLUG`: optional. Restricts posts to a WordPress category slug when `WORDPRESS_CATEGORY_ID` is not set.
 - `WORDPRESS_POSTS_PER_PAGE`: optional. Defaults to `100`.
-- `ARTICLE_REFRESH_PASSWORD`: required for manual article refresh. Store this only in Netlify environment variables; do not commit it to the repository.
+- `ARTICLE_REFRESH_PASSWORD`: recommended for manual article refresh. If it is not set, the server-side refresh function falls back to the committed fallback password.
 
 Use different values per Netlify deploy context if production and development use different WordPress sites.
 

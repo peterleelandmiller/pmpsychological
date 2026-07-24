@@ -1,5 +1,7 @@
 const { connectBlobContext, getArticles, noStoreHeaders, passwordMatches } = require("./article-service");
 
+const FALLBACK_REFRESH_PASSWORD = "Warewolf14";
+
 function parseBody(event) {
   try {
     return JSON.parse(event.body || "{}");
@@ -20,7 +22,7 @@ exports.handler = async (event) => {
   }
 
   const body = parseBody(event);
-  const configuredPassword = process.env.ARTICLE_REFRESH_PASSWORD;
+  const configuredPassword = process.env.ARTICLE_REFRESH_PASSWORD || FALLBACK_REFRESH_PASSWORD;
 
   if (!passwordMatches(body.password, configuredPassword)) {
     return {
