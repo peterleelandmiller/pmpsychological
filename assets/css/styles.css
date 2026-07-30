@@ -1975,6 +1975,7 @@ h3 {
   width: min(calc(100% - 2rem), 820px);
   margin: 0 auto;
   padding: clamp(3rem, 7vw, 6rem) 0;
+  overflow-x: clip;
 }
 
 .article h1 {
@@ -2002,16 +2003,26 @@ h3 {
 }
 
 .cms-body {
+  max-width: 100%;
+  min-width: 0;
   margin-top: 2rem;
 }
 
 .cms-body .sqs-layout,
 .cms-body .sqs-row,
 .cms-body .sqs-col-12 {
+  max-width: 100%;
+  min-width: 0;
   width: 100%;
 }
 
+.cms-body > :not(.cms-table-scroll):not(.wp-block-table) {
+  max-width: 100%;
+}
+
 .cms-body img {
+  max-width: 100%;
+  height: auto;
   border-radius: 22px;
   box-shadow: 0 16px 42px rgba(24, 50, 74, 0.1);
 }
@@ -2019,6 +2030,105 @@ h3 {
 .cms-body a {
   color: var(--sage-dark);
   font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.cms-body p,
+.cms-body li,
+.cms-body blockquote,
+.cms-body figcaption,
+.cms-body pre,
+.cms-body code {
+  overflow-wrap: anywhere;
+}
+
+.cms-body pre {
+  white-space: pre-wrap;
+}
+
+.cms-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  margin: 2rem 0;
+  overflow-x: clip;
+  border: 1px solid rgba(23, 35, 35, 0.16);
+  border-radius: 12px;
+  background: #fffdfa;
+  box-shadow: 0 14px 34px rgba(24, 50, 74, 0.08);
+}
+
+.cms-table-scroll:focus-visible {
+  outline-offset: 3px;
+}
+
+.cms-body table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: clamp(0.72rem, calc(1.13rem - (var(--table-columns, 3) * 0.06rem)), 0.95rem);
+  line-height: 1.5;
+}
+
+.cms-body caption {
+  padding: 0.85rem 1rem;
+  color: var(--muted);
+  font-weight: 800;
+  text-align: left;
+}
+
+.cms-body th,
+.cms-body td {
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border-right: 1px solid rgba(23, 35, 35, 0.14);
+  border-bottom: 1px solid rgba(23, 35, 35, 0.14);
+  vertical-align: top;
+  text-align: left;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.cms-body table.is-wide-table th,
+.cms-body table.is-wide-table td {
+  padding: 0.7rem 0.75rem;
+}
+
+.cms-body table.is-extra-wide-table th,
+.cms-body table.is-extra-wide-table td {
+  padding: 0.58rem 0.55rem;
+}
+
+.cms-body th:last-child,
+.cms-body td:last-child {
+  border-right: 0;
+}
+
+.cms-body tr:last-child th,
+.cms-body tr:last-child td {
+  border-bottom: 0;
+}
+
+.cms-body thead th {
+  background: rgba(111, 141, 132, 0.14);
+  color: var(--blue);
+  font-weight: 900;
+}
+
+.cms-body tbody tr:nth-child(even) {
+  background: rgba(245, 241, 234, 0.58);
+}
+
+.cms-body td p,
+.cms-body th p {
+  margin: 0;
+}
+
+.cms-body td p + p,
+.cms-body th p + p {
+  margin-top: 0.65rem;
 }
 
 .article-tags {
@@ -2655,6 +2765,30 @@ h3 {
 
   .consult-methods {
     grid-template-columns: 1fr;
+  }
+
+  .cms-table-scroll {
+    margin: 1.5rem 0;
+  }
+
+  .cms-body table {
+    font-size: clamp(0.62rem, calc(0.99rem - (var(--table-columns, 3) * 0.055rem)), 0.82rem);
+    line-height: 1.35;
+  }
+
+  .cms-body th,
+  .cms-body td {
+    padding: 0.58rem 0.48rem;
+  }
+
+  .cms-body table.is-wide-table th,
+  .cms-body table.is-wide-table td {
+    padding: 0.48rem 0.36rem;
+  }
+
+  .cms-body table.is-extra-wide-table th,
+  .cms-body table.is-extra-wide-table td {
+    padding: 0.4rem 0.28rem;
   }
 
   .footer-badge {

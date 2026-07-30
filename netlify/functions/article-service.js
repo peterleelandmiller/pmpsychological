@@ -10,6 +10,13 @@ const STALE_SECONDS = 900;
 let memoryCache = null;
 let blobCacheStatus = "not-checked";
 
+function headerSafe(value) {
+  return String(value || "")
+    .replace(/[^\t\x20-\x7e]/g, " ")
+    .replace(/\s+/g, " ")
+    .slice(0, 160);
+}
+
 function connectBlobContext(event) {
   try {
     require("@netlify/blobs").connectLambda(event);
@@ -45,7 +52,7 @@ function responseHeaders(source, cacheSeconds = CACHE_SECONDS) {
     "Cache-Control": "public, max-age=0, must-revalidate",
     "Netlify-CDN-Cache-Control": `public, durable, s-maxage=${cacheSeconds}, stale-while-revalidate=${STALE_SECONDS}, stale-if-error=${CACHE_STALE_SECONDS}`,
     "X-Article-Source": source,
-    "X-Persistent-Cache": blobCacheStatus
+    "X-Persistent-Cache": headerSafe(blobCacheStatus)
   };
 }
 
@@ -55,7 +62,7 @@ function noStoreHeaders(source) {
     "Cache-Control": "no-store, max-age=0",
     "Netlify-CDN-Cache-Control": "no-store",
     "X-Article-Source": source,
-    "X-Persistent-Cache": blobCacheStatus
+    "X-Persistent-Cache": headerSafe(blobCacheStatus)
   };
 }
 

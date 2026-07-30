@@ -12,6 +12,13 @@ const CDN_STALE_SECONDS = 900;
 let memoryCache = null;
 let blobCacheStatus = "not-checked";
 
+function headerSafe(value) {
+  return String(value || "")
+    .replace(/[^\t\x20-\x7e]/g, " ")
+    .replace(/\s+/g, " ")
+    .slice(0, 160);
+}
+
 function connectBlobContext(event) {
   try {
     require("@netlify/blobs").connectLambda(event);
@@ -110,7 +117,7 @@ function responseHeaders(source, cacheSeconds = CDN_CACHE_SECONDS) {
     "Cache-Control": "public, max-age=0, must-revalidate",
     "Netlify-CDN-Cache-Control": `public, durable, s-maxage=${cacheSeconds}, stale-while-revalidate=${CDN_STALE_SECONDS}, stale-if-error=${CACHE_STALE_SECONDS}`,
     "X-Availability-Source": source,
-    "X-Persistent-Cache": blobCacheStatus
+    "X-Persistent-Cache": headerSafe(blobCacheStatus)
   };
 }
 

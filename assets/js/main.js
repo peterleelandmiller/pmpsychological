@@ -381,6 +381,38 @@ async function refreshWordPressArticles(password) {
   return Array.isArray(data.items) ? data.items : fallbackArticles;
 }
 
+function enhanceArticleTables(root) {
+  const body = root.querySelector(".cms-body");
+  if (!body) return;
+
+  body.querySelectorAll("table").forEach((table) => {
+    const columnCount = Math.max(
+      ...Array.from(table.rows).map((row) => row.cells.length),
+      1
+    );
+    table.style.setProperty("--table-columns", String(columnCount));
+    table.classList.toggle("is-wide-table", columnCount > 4);
+    table.classList.toggle("is-extra-wide-table", columnCount > 6);
+
+    const existingWrapper = table.closest(".cms-table-scroll, .wp-block-table");
+    if (existingWrapper) {
+      existingWrapper.classList.add("cms-table-scroll");
+      existingWrapper.setAttribute("tabindex", "0");
+      existingWrapper.setAttribute("role", "region");
+      existingWrapper.setAttribute("aria-label", "Article table");
+      return;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "cms-table-scroll";
+    wrapper.setAttribute("tabindex", "0");
+    wrapper.setAttribute("role", "region");
+    wrapper.setAttribute("aria-label", "Article table");
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(table);
+  });
+}
+
 function escapeHtml(value = "") {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -630,6 +662,7 @@ async function initCmsArticle() {
     <div class="cms-body">${article.body}</div>
     <p><a class="btn btn-secondary" href="/mental-health-resources/" data-loading-button>Back to Resources <span class="btn-spinner"></span></a></p>
   `;
+  enhanceArticleTables(mount);
   initTherapyTermPopovers(mount);
   initLoadingButtons();
   initReveals();
