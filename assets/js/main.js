@@ -23,6 +23,7 @@ const SELECTORS = {
 const WORDPRESS_POSTS_URL = "/api/wordpress-posts";
 const ARTICLE_REFRESH_URL = "/api/refresh-articles";
 const JANE_OPENINGS_URL = "/api/jane-openings";
+const PRELOADER_MINIMUM_MS = 1650;
 
 const fallbackArticles = [
 ];
@@ -56,7 +57,26 @@ function initBrandLoader() {
   const preloader = document.querySelector(SELECTORS.preloader);
   if (!brands.length && !preloader) return;
 
+  const progressBar = preloader?.querySelector("[data-preloader-progress-bar]");
+  const progressText = preloader?.querySelector("[data-preloader-progress-text]");
+  let progress = 0;
+  let progressFrame = null;
   const started = performance.now();
+
+  const setProgress = (value) => {
+    progress = Math.max(progress, Math.min(100, Math.round(value)));
+    if (progressBar) progressBar.style.width = `${progress}%`;
+    if (progressText) progressText.textContent = `${progress}%`;
+    preloader?.setAttribute("aria-label", `Loading ${progress}%`);
+  };
+
+  const animateProgress = () => {
+    const elapsed = performance.now() - started;
+    const target = Math.min(94, (elapsed / PRELOADER_MINIMUM_MS) * 92);
+    setProgress(target);
+    if (progress < 94) progressFrame = requestAnimationFrame(animateProgress);
+  };
+
   const revealBrands = () => {
     brands.forEach((brand) => {
       brand.classList.add("is-loaded");
@@ -64,9 +84,32 @@ function initBrandLoader() {
     });
   };
 
+  const finishProgress = () => new Promise((resolve) => {
+    if (progressFrame) cancelAnimationFrame(progressFrame);
+    const startProgress = progress;
+    const startTime = performance.now();
+    const duration = Math.max(360, (100 - startProgress) * 18);
+
+    const tick = () => {
+      const t = Math.min(1, (performance.now() - startTime) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setProgress(startProgress + ((100 - startProgress) * eased));
+      if (t < 1) {
+        progressFrame = requestAnimationFrame(tick);
+      } else {
+        setProgress(100);
+        progressFrame = null;
+        resolve();
+      }
+    };
+
+    tick();
+  });
+
   const complete = async () => {
     const elapsed = performance.now() - started;
-    await minimumDelay(Math.max(0, 1650 - elapsed));
+    await minimumDelay(Math.max(0, PRELOADER_MINIMUM_MS - elapsed));
+    await finishProgress();
 
     if (preloader) {
       preparePreloaderHandoff(preloader, brands[0]);
@@ -82,6 +125,8 @@ function initBrandLoader() {
   };
 
   brands.forEach((brand) => brand.setAttribute("aria-busy", "true"));
+  setProgress(0);
+  if (preloader) progressFrame = requestAnimationFrame(animateProgress);
 
   if (document.readyState === "complete") {
     complete();
@@ -396,9 +441,13 @@ function initTherapyTermPopovers(root = document.body) {
   });
 }
 
-async function loadWordPressArticles() {
+async function loadWordPressArticles({ bustCache = false } = {}) {
   try {
-    const response = await fetch(WORDPRESS_POSTS_URL, { headers: { Accept: "application/json" } });
+    const url = bustCache ? `${WORDPRESS_POSTS_URL}?refresh=${Date.now()}` : WORDPRESS_POSTS_URL;
+    const response = await fetch(url, {
+      cache: bustCache ? "no-store" : "default",
+      headers: { Accept: "application/json" }
+    });
     if (!response.ok) return fallbackArticles;
     const data = await response.json();
     return Array.isArray(data.items) ? data.items : fallbackArticles;
@@ -692,6 +741,7 @@ async function initResources() {
       const refreshedArticles = await refreshWordPressArticles(password);
       await spinnerDelay;
       articles = normalizeArticles(refreshedArticles);
+      if (!articles.length) articles = normalizeArticles(await loadWordPressArticles({ bustCache: true }));
       if (refreshPassword) refreshPassword.value = "";
       activeCategory = "All";
       activeTag = "All";
@@ -716,8 +766,13 @@ async function initCmsArticle() {
   const mount = document.querySelector(SELECTORS.cmsArticle);
   if (!mount) return;
   const slug = window.location.pathname.split("/").filter(Boolean).pop();
-  const articles = await loadWordPressArticles();
-  const article = articles.find((item) => item.slug === slug);
+  let articles = await loadWordPressArticles();
+  let article = articles.find((item) => item.slug === slug);
+
+  if (!article) {
+    articles = await loadWordPressArticles({ bustCache: true });
+    article = articles.find((item) => item.slug === slug);
+  }
 
   if (!article) {
     upsertMeta('meta[name="robots"]', { name: "robots", content: "noindex" });

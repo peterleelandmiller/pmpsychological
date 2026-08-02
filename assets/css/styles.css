@@ -192,6 +192,42 @@ img {
   animation: brand-line-cascade 0.72s cubic-bezier(0.19, 1, 0.22, 1) 0.42s forwards;
 }
 
+.preloader-progress {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 1.15rem;
+  opacity: 0;
+  transform: translateX(-12px);
+  animation: brand-line-cascade 0.72s cubic-bezier(0.19, 1, 0.22, 1) 0.54s forwards;
+}
+
+.preloader-progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(29, 47, 70, 0.12);
+}
+
+.preloader-progress-bar {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--gold), var(--blue));
+  transition: width 0.16s linear;
+}
+
+.preloader-progress-text {
+  min-width: 3ch;
+  color: var(--blue);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  text-align: right;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -2235,6 +2271,70 @@ h3 {
   padding: clamp(1.5rem, 4vw, 3rem);
 }
 
+.contact-methods {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1.15rem 0 1.3rem;
+}
+
+.contact-method {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(23, 35, 35, 0.1);
+  border-radius: 18px;
+  background: rgba(245, 241, 234, 0.58);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+}
+
+.contact-method:hover {
+  border-color: rgba(111, 141, 132, 0.28);
+  background: rgba(255, 253, 250, 0.95);
+  box-shadow: 0 14px 34px rgba(24, 50, 74, 0.1);
+  transform: translateY(-2px);
+}
+
+.contact-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: white;
+  box-shadow: 0 10px 24px rgba(24, 50, 74, 0.18);
+}
+
+.contact-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.contact-method strong,
+.contact-method span span {
+  display: block;
+}
+
+.contact-method strong {
+  color: var(--blue);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contact-method span span {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .contact-form {
   display: grid;
   gap: 1rem;
@@ -3044,6 +3144,10 @@ h3 {
     font-size: clamp(0.74rem, 3.3vw, 1rem);
     white-space: nowrap;
   }
+
+  .preloader-progress {
+    gap: 0.7rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3058,7 +3162,8 @@ h3 {
   .brand[data-brand-loader]:not(.is-loaded) .brand-icon::after,
   .brand[data-brand-loader]:not(.is-loaded) .brand-tagline,
   .brand-mark-text span,
-  .preloader-card p {
+  .preloader-card p,
+  .preloader-progress {
     clip-path: inset(0);
     opacity: 1;
     transform: none;

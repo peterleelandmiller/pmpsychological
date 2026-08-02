@@ -257,23 +257,48 @@ async function fetchLivePosts() {
       }
     }
 
-    const url = `${apiBase}/posts?${requestParams}`;
-    const response = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "Peter Miller Psychological Services WordPress article sync"
-      }
-    });
+    const posts = [];
+    let totalPages = 1;
+    const perPage = Number(requestParams.get("per_page")) || 100;
+    const fallbackMaxPages = Number(process.env.WORDPRESS_POSTS_MAX_PAGES) || 20;
 
-    if (!response.ok) {
-      errors.push(`${response.status} from ${url}`);
-      continue;
+    for (let page = 1; page <= totalPages; page += 1) {
+      requestParams.set("page", String(page));
+      const url = `${apiBase}/posts?${requestParams}`;
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "Peter Miller Psychological Services WordPress article sync"
+        }
+      });
+
+      if (!response.ok) {
+        errors.push(`${response.status} from ${url}`);
+        posts.length = 0;
+        break;
+      }
+
+      const pagePosts = await response.json();
+      if (!Array.isArray(pagePosts)) {
+        errors.push(`non-array response from ${url}`);
+        posts.length = 0;
+        break;
+      }
+
+      posts.push(...pagePosts);
+      const headerTotalPages = Number(response.headers.get("x-wp-totalpages"));
+      if (Number.isFinite(headerTotalPages) && headerTotalPages > 0) {
+        totalPages = headerTotalPages;
+      } else if (pagePosts.length >= perPage && page < fallbackMaxPages) {
+        totalPages = page + 1;
+      }
+      if (!pagePosts.length) break;
     }
 
-    const posts = await response.json();
+    if (!posts.length) continue;
 
     return {
-      items: Array.isArray(posts) ? posts.map(mapPost).filter((post) => post.title && post.slug) : []
+      items: posts.map(mapPost).filter((post) => post.title && post.slug)
     };
   }
 
