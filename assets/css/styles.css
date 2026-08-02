@@ -108,12 +108,11 @@ img {
 
 .brand-mark {
   width: 100%;
-  min-height: 150px;
   margin: 0 0 0.75rem;
   display: grid;
   grid-template-columns: 16px 1fr;
-  align-items: center;
-  gap: 1.25rem;
+  align-items: stretch;
+  gap: 0.95rem;
   color: var(--blue);
   font-size: 0;
   line-height: 0;
@@ -124,14 +123,14 @@ img {
 .footer-logo::before {
   content: "";
   width: 5px;
-  height: 100%;
-  min-height: 72px;
+  height: auto;
+  min-height: 0;
+  align-self: stretch;
   background: var(--gold);
 }
 
 .brand-mark::before {
   width: 7px;
-  min-height: 136px;
   border-radius: 999px;
   transform-origin: center bottom;
   animation: brand-bar-load 1.18s cubic-bezier(0.65, 0, 0.35, 1) infinite;
@@ -240,12 +239,11 @@ img {
 
 .brand-icon {
   width: clamp(142px, 17vw, 190px);
-  min-height: 54px;
   border-radius: 0;
   display: grid;
   grid-template-columns: 7px 1fr;
-  align-items: center;
-  gap: 0.55rem;
+  align-items: stretch;
+  gap: 0.42rem;
   color: var(--blue);
   background: transparent;
   border: 0;
@@ -257,7 +255,6 @@ img {
 
 .brand-icon::before {
   width: 3px;
-  min-height: 48px;
   position: relative;
   overflow: hidden;
   border-radius: 999px;
@@ -2358,6 +2355,15 @@ h3 {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.site-footer p {
+  margin: 0.35rem 0;
+  line-height: 1.38;
+}
+
+.site-footer li {
+  line-height: 1.25;
+}
+
 .footer-links {
   padding: 0;
   margin: 0.6rem 0 1.2rem;
@@ -2373,10 +2379,9 @@ h3 {
 .footer-logo {
   display: inline-grid;
   grid-template-columns: 10px 1fr;
-  align-items: center;
-  gap: 0.9rem;
+  align-items: stretch;
+  gap: 0.18rem 0.65rem;
   width: min(380px, 100%);
-  min-height: 116px;
   margin-bottom: 1.2rem;
   padding: 0;
   border-radius: 0;
@@ -2441,7 +2446,8 @@ h3 {
 
 .footer-logo::before {
   width: 4px;
-  min-height: 92px;
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .footer-logo:hover {
@@ -2451,7 +2457,9 @@ h3 {
 }
 
 .footer-logo-text {
-  display: block;
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
   color: white;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.25rem, 3vw, 1.75rem);
@@ -2460,9 +2468,15 @@ h3 {
   text-transform: uppercase;
 }
 
+.footer-logo-text span {
+  display: block;
+}
+
 .footer-logo-tagline {
   display: block;
-  margin-top: 0.75rem;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 0.06rem;
   color: rgba(255, 255, 255, 0.72);
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-size: 0.86rem;
@@ -2913,7 +2927,6 @@ h3 {
 
   .brand-icon {
     width: 120px;
-    min-height: 48px;
   }
 
   .brand-icon::after {
@@ -2921,10 +2934,10 @@ h3 {
   }
 
   .brand-tagline {
-    max-width: 138px;
+    max-width: none;
     line-height: 1.25;
-    white-space: normal;
-    font-size: 0.58rem;
+    white-space: nowrap;
+    font-size: clamp(0.48rem, 2.45vw, 0.58rem);
   }
 
   .verification-badge {
@@ -3018,7 +3031,8 @@ h3 {
   }
 
   .footer-logo-tagline {
-    white-space: normal;
+    font-size: clamp(0.58rem, 3.1vw, 0.78rem);
+    white-space: nowrap;
   }
 
   .preloader-card {
@@ -3027,7 +3041,8 @@ h3 {
   }
 
   .preloader-card p {
-    white-space: normal;
+    font-size: clamp(0.74rem, 3.3vw, 1rem);
+    white-space: nowrap;
   }
 }
 

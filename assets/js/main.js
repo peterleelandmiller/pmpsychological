@@ -144,7 +144,7 @@ function initBranding() {
     logo.className = "footer-logo";
     logo.href = "/";
     logo.setAttribute("aria-label", "Peter Miller Psychological Services home");
-    logo.innerHTML = `<span><span class="footer-logo-text">Peter<br>Miller<br>Psychological<br>Services</span><span class="footer-logo-tagline">Empowering Minds, Transforming Lives.</span></span>`;
+    logo.innerHTML = `<span class="footer-logo-text"><span>Peter</span><span>Miller</span><span>Psychological</span><span>Services</span></span><span class="footer-logo-tagline">Empowering Minds, Transforming Lives</span>`;
     firstColumn.prepend(logo);
   });
 
