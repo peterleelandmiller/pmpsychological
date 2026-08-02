@@ -169,7 +169,7 @@ async function fetchTreatmentOpenings(option) {
   const response = await fetch(janeOpeningsUrl(option.id), {
     headers: {
       Accept: "application/json",
-      "User-Agent": "pmpsychological.com booking availability"
+      "User-Agent": "Peter Miller Psychological Services booking availability"
     }
   });
 

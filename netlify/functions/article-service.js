@@ -261,7 +261,7 @@ async function fetchLivePosts() {
     const response = await fetch(url, {
       headers: {
         Accept: "application/json",
-        "User-Agent": "pmpsychological.com WordPress article sync"
+        "User-Agent": "Peter Miller Psychological Services WordPress article sync"
       }
     });
 

@@ -75,11 +75,14 @@ img {
   position: fixed;
   inset: 0;
   z-index: 999;
+  --preloader-shift-x: 0px;
+  --preloader-shift-y: 0px;
+  --preloader-scale: 1;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 28% 22%, rgba(111, 141, 132, 0.16), transparent 34%), radial-gradient(circle at 78% 70%, rgba(217, 180, 111, 0.16), transparent 28%), linear-gradient(135deg, #fffdfa, #f5f1ea);
+  background: radial-gradient(circle at 26% 20%, rgba(111, 141, 132, 0.16), transparent 34%), radial-gradient(circle at 78% 72%, rgba(217, 180, 111, 0.18), transparent 30%), linear-gradient(135deg, #fffdfa, #f5f1ea);
   color: var(--ink);
-  transition: opacity 0.7s ease, visibility 0.7s ease;
+  transition: opacity 0.65s ease, visibility 0.65s ease;
 }
 
 .preloader.is-hidden {
@@ -91,29 +94,29 @@ img {
 .preloader-card {
   width: min(560px, 88vw);
   margin-inline: auto;
-  text-align: left;
   padding: clamp(1.25rem, 5vw, 2rem);
+  text-align: left;
+  transform-origin: top left;
+  transition: opacity 0.68s ease, transform 0.82s cubic-bezier(0.19, 1, 0.22, 1), filter 0.68s ease;
+}
+
+.preloader.is-handoff .preloader-card {
+  opacity: 0.08;
+  filter: blur(1px);
+  transform: translate(var(--preloader-shift-x), var(--preloader-shift-y)) scale(var(--preloader-scale));
 }
 
 .brand-mark {
   width: 100%;
   min-height: 150px;
   margin: 0 0 0.75rem;
-  border-radius: 0;
   display: grid;
   grid-template-columns: 16px 1fr;
   align-items: center;
   gap: 1.25rem;
   color: var(--blue);
-  background-color: transparent;
-  border: 0;
   font-size: 0;
-  text-align: left;
   line-height: 0;
-}
-
-.preloader-card strong {
-  display: none;
 }
 
 .brand-mark::before,
@@ -126,9 +129,20 @@ img {
   background: var(--gold);
 }
 
-.brand-mark::after {
-  content: "Peter\A Miller\A Psychological\A Services";
-  white-space: pre-line;
+.brand-mark::before {
+  width: 7px;
+  min-height: 136px;
+  border-radius: 999px;
+  transform-origin: center bottom;
+  animation: brand-bar-load 1.18s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(255, 247, 195, 0) 24%, #fff2ac 42%, var(--gold) 52%, #bd8f3e 62%, transparent 78%) 0 -120% / 100% 230% no-repeat,
+    linear-gradient(180deg, rgba(217, 180, 111, 0.22), rgba(217, 180, 111, 0.6));
+  box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.18), 0 0 28px rgba(217, 180, 111, 0.5);
+}
+
+.brand-mark-text {
+  display: grid;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2rem, 8vw, 3.35rem);
   font-weight: 700;
@@ -137,23 +151,46 @@ img {
   text-transform: uppercase;
 }
 
+.brand-mark-text span {
+  display: block;
+  opacity: 0;
+  transform: translateX(-22px);
+  animation: brand-line-cascade 0.72s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.brand-mark-text span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.brand-mark-text span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.brand-mark-text span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+.preloader.is-handoff .brand-mark-text span,
+.preloader.is-handoff .preloader-card p {
+  opacity: 0;
+  transform: translateX(18px);
+  transition: opacity 0.36s ease, transform 0.42s ease;
+}
+
+.preloader.is-handoff .brand-mark::before {
+  animation: brand-bar-handoff 0.82s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
 .preloader-card p {
   margin: 0.85rem 0 0;
   color: var(--muted);
   font-size: clamp(1rem, 2vw, 1.25rem);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.02em;
   white-space: nowrap;
-}
-
-.loader-ring {
-  width: 44px;
-  height: 44px;
-  margin: 1.4rem auto 0;
-  border-radius: 50%;
-  border: 3px solid rgba(24, 50, 74, 0.14);
-  border-top-color: var(--sage-dark);
-  animation: spin 0.9s linear infinite;
+  opacity: 0;
+  transform: translateX(-12px);
+  animation: brand-line-cascade 0.72s cubic-bezier(0.19, 1, 0.22, 1) 0.42s forwards;
 }
 
 .site-header {
@@ -192,6 +229,10 @@ img {
   transition: transform 0.26s ease, filter 0.26s ease;
 }
 
+.brand[data-brand-loader] {
+  isolation: isolate;
+}
+
 .brand:hover {
   transform: translateY(-2px);
   filter: drop-shadow(0 12px 20px rgba(24, 50, 74, 0.1));
@@ -217,7 +258,11 @@ img {
 .brand-icon::before {
   width: 3px;
   min-height: 48px;
-  transition: background 0.26s ease, transform 0.26s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  transform-origin: center bottom;
+  transition: background 0.26s ease, box-shadow 0.35s ease, transform 0.46s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .brand-icon::after {
@@ -229,7 +274,42 @@ img {
   line-height: 0.9;
   letter-spacing: 0;
   text-transform: uppercase;
-  transition: color 0.26s ease;
+  transform-origin: left center;
+  transition: color 0.26s ease, clip-path 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.45s ease, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.brand[data-brand-loader]:not(.is-loaded) .brand-icon::before {
+  animation: brand-bar-load 1.18s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(255, 247, 195, 0) 24%, #fff2ac 42%, var(--gold) 52%, #bd8f3e 62%, transparent 78%) 0 -120% / 100% 230% no-repeat,
+    linear-gradient(180deg, rgba(217, 180, 111, 0.2), rgba(217, 180, 111, 0.5));
+  box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.18), 0 0 20px rgba(217, 180, 111, 0.5);
+}
+
+.brand[data-brand-loader]:not(.is-loaded) .brand-icon::after {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+  transform: translateX(-18px) scaleX(0.96);
+}
+
+.brand[data-brand-loader]:not(.is-loaded) .brand-tagline {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.brand[data-brand-loader].is-loaded .brand-icon::before {
+  animation: brand-bar-settle 0.62s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.brand[data-brand-loader].is-loaded .brand-icon::after {
+  clip-path: inset(0);
+  opacity: 1;
+  transform: translateX(0) scaleX(1);
+}
+
+.brand[data-brand-loader].is-loaded .brand-tagline {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .brand:hover .brand-icon::before {
@@ -257,7 +337,7 @@ img {
   line-height: 1.15;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  transition: color 0.26s ease, transform 0.26s ease;
+  transition: color 0.26s ease, opacity 0.55s ease 0.24s, transform 0.65s cubic-bezier(0.19, 1, 0.22, 1) 0.18s;
 }
 
 .brand:hover .brand-tagline {
@@ -2531,6 +2611,80 @@ h3 {
   }
 }
 
+@keyframes brand-bar-load {
+  0% {
+    background-position: 0 -135%, 0 0;
+    transform: translateY(-7px) scaleY(0.26);
+  }
+
+  34% {
+    background-position: 0 -20%, 0 0;
+    transform: translateY(0) scaleY(0.86);
+  }
+
+  66% {
+    background-position: 0 78%, 0 0;
+    transform: translateY(3px) scaleY(1);
+  }
+
+  100% {
+    background-position: 0 185%, 0 0;
+    transform: translateY(8px) scaleY(0.34);
+  }
+}
+
+@keyframes brand-line-cascade {
+  0% {
+    opacity: 0;
+    transform: translateX(-22px);
+  }
+
+  62% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes brand-bar-handoff {
+  0% {
+    background-position: 0 -20%, 0 0;
+    box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.2), 0 0 28px rgba(217, 180, 111, 0.5);
+    transform: translateY(0) scaleY(1);
+  }
+
+  52% {
+    background-position: 0 78%, 0 0;
+    box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.25), 0 0 34px rgba(217, 180, 111, 0.58);
+    transform: translateY(0) scaleY(1.06);
+  }
+
+  100% {
+    background-position: 0 160%, 0 0;
+    box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.06), 0 0 8px rgba(217, 180, 111, 0.18);
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes brand-bar-settle {
+  0% {
+    box-shadow: 0 0 0 1px rgba(217, 180, 111, 0.22), 0 0 20px rgba(217, 180, 111, 0.42);
+    transform: scaleY(0.72);
+  }
+
+  58% {
+    transform: scaleY(1.08);
+  }
+
+  100% {
+    box-shadow: none;
+    transform: scaleY(1);
+  }
+}
+
 @media (max-width: 900px) {
   .menu-toggle {
     display: block;
@@ -2884,5 +3038,18 @@ h3 {
     animation-duration: 0.01ms !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .brand[data-brand-loader]:not(.is-loaded) .brand-icon::after,
+  .brand[data-brand-loader]:not(.is-loaded) .brand-tagline,
+  .brand-mark-text span,
+  .preloader-card p {
+    clip-path: inset(0);
+    opacity: 1;
+    transform: none;
+  }
+
+  .preloader.is-handoff .preloader-card {
+    opacity: 0;
   }
 }

@@ -34,6 +34,12 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 
 [[redirects]]
+  from = "https://pmpsychological.com/*"
+  to = "https://www.pmpsychological.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/api/jane-openings"
   to = "/.netlify/functions/jane-openings"
   status = 200

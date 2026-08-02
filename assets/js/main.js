@@ -1,4 +1,5 @@
 const SELECTORS = {
+  brandLoader: "[data-brand-loader]",
   preloader: "[data-preloader]",
   menuToggle: "[data-menu-toggle]",
   navLink: ".site-nav a",
@@ -34,17 +35,59 @@ const therapyTermDefinitions = {
 
 const minimumDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function initPreloader() {
+function preparePreloaderHandoff(preloader, brand) {
+  const card = preloader.querySelector(".preloader-card");
+  const target = brand?.querySelector(".brand-icon");
+  if (!card || !target) return;
+
+  const cardRect = card.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const scale = Math.min(targetRect.height / cardRect.height, targetRect.width / cardRect.width);
+  const shiftX = targetRect.left - cardRect.left;
+  const shiftY = targetRect.top - cardRect.top;
+
+  preloader.style.setProperty("--preloader-shift-x", `${shiftX}px`);
+  preloader.style.setProperty("--preloader-shift-y", `${shiftY}px`);
+  preloader.style.setProperty("--preloader-scale", String(Math.max(0.24, Math.min(scale, 0.46))));
+}
+
+function initBrandLoader() {
+  const brands = document.querySelectorAll(SELECTORS.brandLoader);
   const preloader = document.querySelector(SELECTORS.preloader);
-  if (!preloader) return;
+  if (!brands.length && !preloader) return;
 
   const started = performance.now();
-  window.addEventListener("load", async () => {
+  const revealBrands = () => {
+    brands.forEach((brand) => {
+      brand.classList.add("is-loaded");
+      brand.setAttribute("aria-busy", "false");
+    });
+  };
+
+  const complete = async () => {
     const elapsed = performance.now() - started;
-    await minimumDelay(Math.max(0, 2000 - elapsed));
-    preloader.classList.add("is-hidden");
-    preloader.setAttribute("aria-hidden", "true");
-  });
+    await minimumDelay(Math.max(0, 1650 - elapsed));
+
+    if (preloader) {
+      preparePreloaderHandoff(preloader, brands[0]);
+      preloader.classList.add("is-handoff");
+      setTimeout(() => {
+        preloader.classList.add("is-hidden");
+        preloader.setAttribute("aria-hidden", "true");
+      }, 640);
+      setTimeout(revealBrands, 720);
+    } else {
+      revealBrands();
+    }
+  };
+
+  brands.forEach((brand) => brand.setAttribute("aria-busy", "true"));
+
+  if (document.readyState === "complete") {
+    complete();
+  } else {
+    window.addEventListener("load", complete, { once: true });
+  }
 }
 
 function initNavigation() {
@@ -426,6 +469,37 @@ function escapeAttribute(value = "") {
   return escapeHtml(value).replaceAll("`", "&#096;");
 }
 
+function upsertMeta(selector, attributes) {
+  let element = document.head.querySelector(selector);
+  if (!element) {
+    element = document.createElement("meta");
+    document.head.append(element);
+  }
+
+  Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, value));
+}
+
+function upsertCanonical(url) {
+  let link = document.head.querySelector('link[rel="canonical"]');
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "canonical");
+    document.head.append(link);
+  }
+  link.setAttribute("href", url);
+}
+
+function upsertJsonLd(id, data) {
+  let script = document.getElementById(id);
+  if (!script) {
+    script = document.createElement("script");
+    script.id = id;
+    script.type = "application/ld+json";
+    document.head.append(script);
+  }
+  script.textContent = JSON.stringify(data);
+}
+
 function articleCard(article) {
   const tags = article.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
   const image = article.image ? `<img src="${escapeAttribute(article.image)}" alt="" loading="lazy">` : "";
@@ -646,12 +720,49 @@ async function initCmsArticle() {
   const article = articles.find((item) => item.slug === slug);
 
   if (!article) {
+    upsertMeta('meta[name="robots"]', { name: "robots", content: "noindex" });
     mount.innerHTML = `<p class="article-meta">Article not found.</p><h1>Resource unavailable</h1><p>This article may still be a draft, scheduled for future publication, or unpublished in WordPress.</p><p><a class="btn btn-secondary" href="/mental-health-resources/" data-loading-button>Back to Resources <span class="btn-spinner"></span></a></p>`;
     initLoadingButtons();
     return;
   }
 
-  document.title = article.title;
+  const articleUrl = `https://www.pmpsychological.com/mental-health-resources/${article.slug}/`;
+  const articleTitle = `${article.title} | Peter Miller Psychological Services`;
+  const description = article.excerpt || "Mental health resource from Peter Miller Psychological Services.";
+  document.title = articleTitle;
+  upsertCanonical(articleUrl);
+  upsertMeta('meta[name="description"]', { name: "description", content: description });
+  upsertMeta('meta[property="og:title"]', { property: "og:title", content: articleTitle });
+  upsertMeta('meta[property="og:description"]', { property: "og:description", content: description });
+  upsertMeta('meta[property="og:type"]', { property: "og:type", content: "article" });
+  upsertMeta('meta[property="og:url"]', { property: "og:url", content: articleUrl });
+  upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: articleTitle });
+  upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: description });
+  if (article.image) {
+    upsertMeta('meta[property="og:image"]', { property: "og:image", content: article.image });
+    upsertMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
+    upsertMeta('meta[name="twitter:image"]', { name: "twitter:image", content: article.image });
+  }
+  upsertJsonLd("article-jsonld", {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.title,
+    "description": description,
+    "datePublished": article.date,
+    "dateModified": article.modified || article.date,
+    "author": {
+      "@type": "Person",
+      "name": article.author || "Peter Miller"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Peter Miller Psychological Services",
+      "url": "https://www.pmpsychological.com/"
+    },
+    "mainEntityOfPage": articleUrl,
+    ...(article.image ? { "image": article.image } : {})
+  });
+
   const tags = article.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
   const image = article.image ? `<img class="cms-featured-image" src="${escapeAttribute(article.image)}" alt="" loading="lazy">` : "";
   mount.innerHTML = `
@@ -864,7 +975,7 @@ async function initBookingWidget() {
   }
 }
 
-initPreloader();
+initBrandLoader();
 initBranding();
 initNavigation();
 initLoadingButtons();
